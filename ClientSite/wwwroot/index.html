@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jatra Software Ltd</title>
+    <base href="/" />
+
+    <!-- Permissions shim to avoid "Illegal invocation" when code extracts navigator.permissions.query -->
+    <script>
+        (function () {
+            try {
+                if (navigator.permissions && typeof navigator.permissions.query === "function") {
+                    const origQuery = navigator.permissions.query;
+                    navigator.permissions.query = function () {
+                        return origQuery.apply(navigator.permissions, arguments);
+                    };
+                }
+                // Optional safe wrapper other scripts / interop can call:
+                window.safePermissionsQuery = function (descriptor) {
+                    if (!navigator.permissions || typeof navigator.permissions.query !== "function") {
+                        return Promise.reject(new Error("Permissions API not available"));
+                    }
+                    return navigator.permissions.query.call(navigator.permissions, descriptor);
+                };
+            } catch (e) {
+                // Do not break the page if something unexpected occurs
+                console.warn("Permissions shim initialization failed:", e);
+            }
+        })();
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="Assets/CompanyLogo.png" />
+
+    <!-- Bootstrap CSS (latest version from CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" /> <!-- optional if using CDN only -->
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/base.css" />
+
+    <!-- Blazor CSS -->
+    <link href="ClientSite.styles.css" rel="stylesheet" />
+
+    <!--Calendly-->
+    <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <!-- JS: Blazor -->
+    <script src="_framework/blazor.webassembly.js"></script>
+
+    <!-- JS: Bootstrap Bundle (with Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Small helper script to attach/detach iframe src on modal show/hide.
+         This prevents embed playback before modal opens and stops video when modal closes. -->
+    <script>
+        (function () {
+            // When a modal is shown, set iframe.src from data-src (if present)
+            document.addEventListener('shown.bs.modal', function (e) {
+                try {
+                    var iframe = e.target.querySelector('iframe');
+                    if (iframe) {
+                        var dataSrc = iframe.getAttribute('data-src');
+                        if (dataSrc && iframe.src !== dataSrc) {
+                            iframe.src = dataSrc;
+                        }
+                    }
+                } catch (err) {
+                    console.warn('Error setting iframe src on modal show', err);
+                }
+            });
+
+            // When a modal is hidden, clear iframe.src to stop playback
+            document.addEventListener('hidden.bs.modal', function (e) {
+                try {
+                    var iframe = e.target.querySelector('iframe');
+                    if (iframe) {
+                        // store current src back to data-src so it can be restored next time
+                        var current = iframe.src || '';
+                        if (current) {
+                            iframe.setAttribute('data-src', current);
+                        }
+                        iframe.src = '';
+                    }
+                } catch (err) {
+                    console.warn('Error clearing iframe src on modal hide', err);
+                }
+            });
+        })();
+    </script>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/8801601693138?text=Hi%20I%20want%20to%20schedule%20a%20consultation."
+       target="_blank"
+       class="whatsapp-float"
+       aria-label="Chat on WhatsApp">
+        <i class="bi bi-whatsapp"></i>
+    </a>
+
+
+    <!-- Calendly -->
+    <button id="calendlyBtn" class="calendly-float" aria-label="Schedule a meeting">
+        <i class="bi bi-calendar-event"></i>
+    </button>
+    <script>
+        document.getElementById("calendlyBtn").addEventListener("click", function () {
+            Calendly.initPopupWidget({
+                url: 'https://calendly.com/hafizul-islam/30min'
+            });
+        });
+    </script>
+    <script src="https://assets.calendly.com/assets/external/widget.js"></script>
+</body>
+</html>

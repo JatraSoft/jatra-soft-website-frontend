@@ -1,0 +1,235 @@
+﻿@page "/"
+@using ClientSite.Models
+@using ClientSite.Pages.Components
+@using ClientSite.Services
+@inject HeroService HeroService
+@inject ClientSite.Services.AboutService AboutService
+@inject IJSRuntime JS
+
+
+<div class="home-page" style="padding-top:40px;">
+
+    <!-- Hero Image Carousel -->
+    <section class="trust-hero">
+        @if (heroes != null && heroes.Any())
+        {
+            var firstHero = heroes.FirstOrDefault();
+
+            <div class="trust-hero-container">
+            <!-- Left Content -->
+            <div class="trust-hero-text">
+                <h1 class="trust-hero-title">
+                    Crafting Digital Solutions<br />
+                    <span>That Businesses Trust</span>
+                </h1>
+
+                <p class="trust-hero-subtitle">
+                        @firstHero?.ShortDescription
+                </p>
+
+
+                <div class="trust-hero-buttons">
+                    <a href="/services" class="trust-btn-primary">Get Started</a>
+                    <a href="/contact" class="trust-btn-secondary">Contact Us</a>
+                </div>
+
+                <!-- Trust Badges -->
+                <div class="trust-badges">
+                    <div class="trust-badge">
+                        <h3>4+ Years</h3>
+                        <p>Experience</p>
+                    </div>
+                    <div class="trust-badge">
+                        <h3>100+ Projects</h3>
+                        <p>Delivered</p>
+                    </div>
+                    <div class="trust-badge">
+                        <h3>50+ Clients</h3>
+                        <p>Worldwide</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Image -->
+            <div class="trust-hero-image">
+                <img src="@heroes?.FirstOrDefault()?.ImageUrl?" alt="Software Development" />
+            </div>
+
+        </div>
+        }
+        else
+        {
+            <p>Loading...</p>
+        }
+    </section>
+
+    <!-- About Section -->
+    <section class="base-about-section mt-lg-5">
+        @* Changed: from about-preview to base-about-section *@
+        @if (aboutSection == null)
+        {
+            <p class="base-text text-center">Loading...</p> @* Added base-text class *@
+        }
+        else
+        {
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6 mb-5 mb-md-0">
+                        <div class="base-video-wrapper position-relative rounded-4 overflow-hidden shadow-lg">
+                            @* Changed: from video-wrapper to base-video-wrapper *@
+                            @if (!string.IsNullOrEmpty(aboutSection.ImageUrl))
+                            {
+                                <img src="@aboutSection.ImageUrl" alt="@aboutSection.Title" class="img-fluid w-100" />
+                            }
+
+                            @if (!string.IsNullOrEmpty(aboutSection.VideoUrl))
+                            {
+                                <button type="button" class="base-play-btn position-absolute top-50 start-50 translate-middle rounded-circle" @* Changed: from play-btn to base-play-btn *@
+                                        data-bs-toggle="modal" data-bs-target="#aboutVideoModal">
+                                    <i class="bi bi-play-fill fs-2 text-white"></i> @* Added text-white to icon for contrast with cyan background *@
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 text-center text-md-start">
+                        @if (!string.IsNullOrWhiteSpace(aboutSection.Title))
+                        {
+                            <h2 class="base-main-title">@aboutSection.Title</h2> @* Changed: from base-main-title to base-sub-heading, as this is a sub-section title in the broader homepage. *@
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(aboutSection.Description))
+                        {
+                            <p class="base-text">@aboutSection.Description</p> @* Changed: text-muted removed, using base-text *@
+                        }
+
+                        <div class="d-flex flex-wrap gap-3 mb-4">
+                            <div class="base-about-stat text-center">
+                                <h4 class="fw-bold mb-0">4+</h4> @* h4 for stat number *@
+                                <small class="base-text">Years of Experience</small> @* Added base-text for consistency, might be overridden by stat box color *@
+                            </div>
+                            <div class="base-about-stat text-center">
+                                <h4 class="fw-bold mb-0">100+</h4> @* h4 for stat number *@
+                                <small class="base-text">Projects Completed</small> @* Added base-text *@
+                            </div>
+                            <div class="base-about-stat text-center">
+                                <h4 class="fw-bold mb-0">50+</h4> @* h4 for stat number *@
+                                <small class="base-text">Happy Clients</small> @* Added base-text *@
+                            </div>
+                        </div>
+
+                        <a href="/about" class="base-btn-primary btn-lg">Learn More</a> @* Changed: btn class removed as base-btn-primary includes full styling *@
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(aboutSection.VideoUrl))
+            {
+                var embedUrl = GetYouTubeEmbedUrl(aboutSection.VideoUrl);
+                <div class="modal fade" id="aboutVideoModal" tabindex="-1" aria-labelledby="aboutVideoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content border-0 rounded-4 overflow-hidden">
+                            <div class="ratio ratio-16x9">
+                                <iframe src="@embedUrl"
+                                        title="@aboutSection.Title"
+                                        loading="lazy"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </section>
+
+    @* Service Page *@
+    <div class="mt-lg-5">
+        <Services />
+    </div>
+
+    @* Product Page *@
+    <div>
+        <Products />
+    </div>
+
+    @* Why Choos Use Page *@
+    <div>
+        <WhyChooseUs />
+    </div>
+
+    @* Blog Page *@
+    <div class="bg-light text-center pb-lg-3">
+        <Blog ShowHeroAndFeatured="false" />
+        <a href="/blog" class="team-link">
+            View All
+            <span class="arrow"></span>
+        </a>
+    </div>
+
+    @* Team Page *@
+    <div class="text-center">
+        <TeamMembers />
+        <a href="/team" class="team-link">
+            View Full Team
+            <span class="arrow"></span>
+        </a>
+    </div>   
+</div>
+
+@* Code *@
+@code {
+    private List<HeroSection> heroes;
+    private AboutSection aboutSection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Start all tasks
+        var heroTask = HeroService.GetHeroesAsync();
+        var aboutTask = AboutService.GetAboutSectionsAsync();
+
+        // Wait for all tasks in parallel
+        await Task.WhenAll(heroTask, aboutTask);
+
+        // Assign results
+        heroes = heroTask.Result;
+        aboutSection = aboutTask.Result.FirstOrDefault();
+    }
+
+    private string GetYouTubeEmbedUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return string.Empty;
+
+        url = url.Trim();
+
+        // Ensure scheme
+        if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
+            !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            url = "https://" + url;
+        }
+
+        // If it's already an embed url, return as-is (ensure https)
+        if (url.Contains("/embed/"))
+            return url;
+
+        // Short youtu.be links
+        var m = System.Text.RegularExpressions.Regex.Match(url, @"youtu\.be\/([^\?&\/]+)");
+        if (m.Success)
+            return $"https://www.youtube.com/embed/{m.Groups[1].Value}";
+
+        // Standard watch?v=... links (or query param v=)
+        m = System.Text.RegularExpressions.Regex.Match(url, @"[?&]v=([^&]+)");
+        if (m.Success)
+            return $"https://www.youtube.com/embed/{m.Groups[1].Value}";
+
+        // Last resort: try to extract last path segment as id
+        m = System.Text.RegularExpressions.Regex.Match(url, @"youtube\.com\/.*\/([^\?&\/]+)$");
+        if (m.Success)
+            return $"https://www.youtube.com/embed/{m.Groups[1].Value}";
+
+        // Fallback - return original (may fail to embed)
+        return url;
+    }
+}
